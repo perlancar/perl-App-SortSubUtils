@@ -1,6 +1,8 @@
 package App::SortSubUtils;
 
+# AUTHORITY
 # DATE
+# DIST
 # VERSION
 
 use 5.010001;
@@ -13,11 +15,11 @@ $SPEC{list_sort_sub_modules} = {
     v => 1.1,
 };
 sub list_sort_sub_modules {
-    require PERLANCAR::Module::List;
+    require Module::List::Tiny;
 
     my %args = @_;
 
-    my $res = PERLANCAR::Module::List::list_modules(
+    my $res = Module::List::Tiny::list_modules(
         "Sort::Sub::", {list_modules=>1, recurse=>1});
     my @rows;
     for (sort keys %$res) {
