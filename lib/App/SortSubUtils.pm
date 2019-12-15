@@ -6,25 +6,44 @@ package App::SortSubUtils;
 # VERSION
 
 use 5.010001;
-use strict;
+use strict 'subs', 'vars';
 use warnings;
 
 our %SPEC;
 
 $SPEC{list_sort_sub_modules} = {
     v => 1.1,
+    args => {
+        detail => {
+            schema => 'bool*',
+            cmdline_aliases => {l=>{}},
+        },
+    },
 };
 sub list_sort_sub_modules {
     require Module::List::Tiny;
 
     my %args = @_;
 
-    my $res = Module::List::Tiny::list_modules(
+    my $mods = Module::List::Tiny::list_modules(
         "Sort::Sub::", {list_modules=>1, recurse=>1});
     my @rows;
-    for (sort keys %$res) {
-        s/^Sort::Sub:://;
-        push @rows, $_;
+    for my $mod (sort keys %$mods) {
+        (my $name = $mod) =~ s/^Sort::Sub:://;
+        if ($args{detail}) {
+            (my $mod_pm = "$mod.pm") =~ s!::!/!g;
+            require $mod_pm;
+            my $meta = {};
+            eval {
+                $meta = &{"$mod\::meta"};
+            };
+            push @rows, {
+                name => $name,
+                summary => $meta->{summary},
+            };
+        } else {
+            push @rows, $name;
+        }
     }
     [200, "OK", \@rows];
 }
